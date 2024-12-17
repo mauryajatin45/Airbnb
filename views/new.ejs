@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit your BnB</title>
+</head>
+
+<body>
+    <form action="/listings/new" method="post">
+        <label for="title">Title: </label>
+        <input type="text" name="title" id="title" placeholder="Title"/>
+        <br />
+        <label for="description">Description: </label>
+        <textarea name="description" id="description" placeholder="Description" cols="50" rows="6"></textarea>
+        <br />
+        <label for="url">Enter Image URL: </label>
+        <input type="text" name="url" id="url" placeholder="Image URL"/>
+        <br />
+        <label for="price">Price: </label>
+        <input type="text" name="price" id="price" placeholder="Price"/>
+        <br />
+        <label for="location">Location: </label>
+        <input type="text" name="location" id="location" placeholder="Location"/>
+        <br />
+        <label for="country">Country: </label>
+        <input type="text" name="country" id="country" placeholder="Country">
+        <br />
+        <button type="submit">Save Listing</button>
+    </form>
+</body>
+
+</html>

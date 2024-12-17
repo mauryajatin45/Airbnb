@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit your BnB</title>
+</head>
+
+<body>
+    <form action="/listings/<%= particularBnb.id %>?_method=PUT" method="POST">
+        <label for="title">Title:</label>
+        <input type="text" name="title" id="title" value="<%= particularBnb.title %>" required />
+      <br>
+        <label for="description">Description:</label>
+        <textarea name="description" id="description" required><%= particularBnb.description %></textarea>
+      <br>
+        <label for="price">Price:</label>
+        <input type="number" name="price" id="price" value="<%= particularBnb.price %>" required />
+      <br>
+        <label for="location">Location:</label>
+        <input type="text" name="location" id="location" value="<%= particularBnb.location %>" required />
+      <br>
+        <label for="country">Country:</label>
+        <input type="text" name="country" id="country" value="<%= particularBnb.country %>" required />
+      <br>
+        <label for="url">Image URL:</label>
+        <input type="text" name="url" id="url" value="<%= particularBnb.url %>" />
+      <br>
+        <button type="submit">Save Changes</button>
+      </form>
+      
+
+</body>
+
+</html>
