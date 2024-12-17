@@ -126,7 +126,15 @@ app.get("/listings/:id/", async (req, res) => {
   }
 });
 
+// Delete Route
+app.delete("/listings/:id", async (req, res) => {
+  let { id } = req.params;
+  let deletedListing = await listing.findByIdAndDelete(id);
+  console.log(deletedListing);
+  res.redirect("/listings");
+});
 
++
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

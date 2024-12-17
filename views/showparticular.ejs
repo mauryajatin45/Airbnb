@@ -13,5 +13,8 @@
     <p><%= particularBnb.location%></p>
     <p><%= particularBnb.country%></p>
     <a href="http://localhost:3000/listings/<%=particularBnb.id %>/edit">Edit Place</a>
-</body>
+    <form action="/listings/<%= particularBnb.id %>?_method=DELETE" method="POST">
+        <button type="submit">Delete</button>
+    </form>
+    </body>
 </html>
