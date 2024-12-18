@@ -1,0 +1,18 @@
+<% layout('layouts/boilerplate') %>
+<body>
+  <a href="http://localhost:3000/listings/new">New BnB</a>
+  <% listings.forEach((listing) => { %>
+  <div class="bnbs">
+    <p>Title: <%= listing.title %></p>
+    <p>Description: <%= listing.description %></p>
+    <img src="<%= listing.url %>" alt="image" width="100px" />
+    <p>Price : <%= listing.price%></p>
+    <p>Lcoation : <%= listing.location%></p>
+    <p>Country : <%= listing.country%></p>
+    <a href="http://localhost:3000/listings/<%=listing._id %>">See Place</a>
+    <a href="http://localhost:3000/listings/<%=listing._id %>/edit"
+      >Edit Place</a
+    >
+  </div>
+  <% }) %>
+</body>

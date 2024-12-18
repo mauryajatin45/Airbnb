@@ -4,14 +4,16 @@ const mongoose = require("mongoose");
 const listing = require("../Airbnb/Models/listing"); // Use 'listing' as imported model
 const methodOverride = require("method-override");
 const path = require("path");
+const ejsMate = require("ejs-mate");
 
 const port = 3000;
 
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
-app.use(express.static('public'));
+app.use(express.static("public"));
+app.engine("ejs", ejsMate);
 
 // Database connection
 async function main() {
@@ -34,7 +36,7 @@ app.get("/", (req, res) => {
 app.get("/listings", async (req, res) => {
   try {
     const listings = await listing.find({});
-    res.render("listings", { listings });
+    res.render("listings/listings.ejs", { listings });
     console.log("Request received on listing page");
   } catch (err) {
     console.error("Error fetching listings:", err);
@@ -44,7 +46,7 @@ app.get("/listings", async (req, res) => {
 
 // Render new listing form
 app.get("/listings/new", (req, res) => {
-  res.render("new.ejs");
+  res.render("listings/new.ejs");
 });
 
 // Create a new listing
@@ -78,7 +80,7 @@ app.get("/listings/:id/edit", async (req, res) => {
       return res.status(404).send("Listing not found");
     }
     console.log(listingToEdit);
-    res.render("edit.ejs", { particularBnb: listingToEdit });
+    res.render("listings/edit.ejs", { particularBnb: listingToEdit });
   } catch (err) {
     console.error("Error fetching listing for edit:", err);
     res.status(500).send("Error fetching listing for edit");
@@ -119,7 +121,9 @@ app.get("/listings/:id/", async (req, res) => {
     if (!listingToShow) {
       return res.status(404).send("Listing not found");
     }
-    res.render("showparticular.ejs", { particularBnb: listingToShow });
+    res.render("listings/showparticular.ejs", {
+      particularBnb: listingToShow,
+    });
   } catch (err) {
     console.error("Error fetching listing details:", err);
     res.status(500).send("Error fetching listing details");
@@ -134,7 +138,6 @@ app.delete("/listings/:id", async (req, res) => {
   res.redirect("/listings");
 });
 
-+
-app.listen(port, () => {
++app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
