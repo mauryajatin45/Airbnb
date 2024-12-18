@@ -1,3 +1,73 @@
-.bnbs{
+.bnbs {
     background-color: lightblue;
+    margin-top: 1%;
+}
+
+.navbar {
+    height: 5rem;
+    background-color: white;
+}
+
+.nav-link {
+    color: #222222 !important;
+}
+
+.f-left {
+    display: flex;
+}
+
+footer {
+    display: flex;
+    justify-content: space-between;
+    height: 4rem;
+    align-items: center;
+    width: 88%;
+    margin: auto;
+    border-top: 1px solid #dddddd;
+}
+
+.f-info-links a {
+    text-decoration: none;
+    color: #222222;
+}
+
+.f-info-links a:hover {
+    text-decoration: underline;
+}
+
+.fa-brands {
+    font-size: 1.3rem;
+    margin-right: 1rem;
+}
+
+.social-links {
+    margin-left: 1rem;
+}
+.f-info {
+    display: flex;
+    align-items: center;
+}
+
+.f-info-other {
+    display: flex;
+    align-items: baseline; 
+    width: auto;
+    margin-right: 1rem;
+}
+
+.f-info-lang i, .f-info-lang p {
+    display: inline-block; 
+    margin: 0; 
+}
+
+.f-info-currency {
+    display: flex;
+    align-items: center;  
+    justify-content: center; 
+    height: auto;
+    width: 5rem;
+}
+
+.f-info-currency p {
+    margin: 0; 
 }
