@@ -1,17 +1,25 @@
 <% layout('layouts/boilerplate') %>
-<body>
-  <% listings.forEach((listing) => { %>
-  <div class="bnbs">
-    <p>Title: <%= listing.title %></p>
-    <p>Description: <%= listing.description %></p>
-    <img src="<%= listing.url %>" alt="image" width="100px" />
-    <p>Price : <%= listing.price%></p>
-    <p>Lcoation : <%= listing.location%></p>
-    <p>Country : <%= listing.country%></p>
-    <a href="http://localhost:3000/listings/<%=listing._id %>">See Place</a>
-    <a href="http://localhost:3000/listings/<%=listing._id %>/edit"
-      >Edit Place</a
-    >
-  </div>
-  <% }) %>
-</body>
+
+  <body>
+    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
+      <% listings.forEach((listing)=> { %>
+        <a href="/listings/<%= listing.id %>" class="Listing-link">
+          <div class="card cols">
+            <img src="<%= listing.url %>" class="card-img-top" alt="Listing image" style="height: 20rem" />
+            <div class="card-img-overlay">
+            </div>
+            <div class="card-body">
+              <p class="card-text">
+                <strong class="card-desc">
+                  <%= listing.title %>
+                </strong>
+                <br />
+                <strong class="card-desc">₹ <%= listing.price.toLocaleString("en-IN") %></strong>
+                night
+              </p>
+            </div>
+          </div>
+        </a>
+        <% }) %>
+    </div>
+  </body>

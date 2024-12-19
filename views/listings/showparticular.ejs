@@ -1,15 +1,30 @@
 <% layout('layouts/boilerplate') %>
+
 <body>
-  <h3><%= particularBnb.title%></h3>
-  <p><%= particularBnb.description%></p>
-  <img src="<%= particularBnb.url%>" alt="image" width="250px" />
-  <p><%= particularBnb.price%></p>
-  <p><%= particularBnb.location%></p>
-  <p><%= particularBnb.country%></p>
-  <a href="http://localhost:3000/listings/<%=particularBnb.id %>/edit"
-    >Edit Place</a
-  >
-  <form action="/listings/<%= particularBnb.id %>?_method=DELETE" method="POST">
-    <button type="submit">Delete</button>
-  </form>
+  <div class="container my-4">
+    <h3 class="text-center mb-3"><%= particularBnb.title %></h3>
+    
+    <!-- Description -->
+    <p><%= particularBnb.description %></p>
+    
+    <!-- Image -->
+    <img src="<%= particularBnb.url %>" alt="image" class="img-fluid rounded" width="250px" />
+    
+    <!-- Price -->
+    <p class="mt-2"><strong>Price:</strong> ₹<%= particularBnb.price %> per night</p>
+    
+    <!-- Location & Country -->
+    <p><strong>Location:</strong> <%= particularBnb.location %></p>
+    <p><strong>Country:</strong> <%= particularBnb.country %></p>
+    
+    <!-- Edit Button -->
+    <div class="mb-3">
+      <a href="http://localhost:3000/listings/<%= particularBnb.id %>/edit" class="btn btn-warning">Edit Place</a>
+    </div>
+    
+    <!-- Delete Form -->
+    <form action="/listings/<%= particularBnb.id %>?_method=DELETE" method="POST">
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+  </div>
 </body>

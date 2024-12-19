@@ -1,3 +1,19 @@
+* {
+    font-family: "Asap", serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    width: 88%;
+    margin: auto;
+    flex: 1;
+}
+
 .bnbs {
     background-color: lightblue;
     margin-top: 1%;
@@ -6,6 +22,8 @@
 .navbar {
     height: 5rem;
     background-color: white;
+    width: 88%;
+    margin: auto;
 }
 
 .nav-link {
@@ -43,6 +61,7 @@ footer {
 .social-links {
     margin-left: 1rem;
 }
+
 .f-info {
     display: flex;
     align-items: center;
@@ -50,24 +69,64 @@ footer {
 
 .f-info-other {
     display: flex;
-    align-items: baseline; 
+    align-items: baseline;
     width: auto;
     margin-right: 1rem;
 }
 
-.f-info-lang i, .f-info-lang p {
-    display: inline-block; 
-    margin: 0; 
+.f-info-lang i,
+.f-info-lang p {
+    display: inline-block;
+    margin: 0;
 }
 
 .f-info-currency {
     display: flex;
-    align-items: center;  
-    justify-content: center; 
+    align-items: center;
+    justify-content: center;
     height: auto;
     width: 5rem;
 }
 
 .f-info-currency p {
-    margin: 0; 
+    margin: 0;
+}
+
+.card-desc {
+    font-weight: 600;
+}
+
+.card {
+    border: none !important;
+    margin-bottom: 2rem;
+}
+
+.card-img-top {
+    border-radius: 1rem !important;
+    width: 100% !important;
+    object-fit: cover !important;
+}
+
+.card-body {
+    padding: 0 !important;
+}
+
+.Listing-link {
+    text-decoration: none !important;
+}
+
+/* Card Effect */
+
+.card-img-overlay {
+    opacity: 0;
+}
+
+.card-img-overlay:hover {
+    opacity: 0.2;
+    background-color: white;
+}
+
+.btn{
+    background-color: #E61E4D !important;
+    border: none !important;
 }
