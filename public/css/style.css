@@ -126,7 +126,38 @@ footer {
     background-color: white;
 }
 
-.btn{
+.f-info-socials a {
+    color: inherit; 
+}
+
+.btn {
     background-color: #E61E4D !important;
     border: none !important;
+}
+
+/* Add smooth transitions to button hover effects */
+.btn-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* smooth transition for transform and shadow */
+}
+
+.btn-warning:hover {
+    transform: scale(1.05);
+    /* Slightly scale the button */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    /* Add subtle shadow */
+}
+
+.btn-danger:hover {
+    transform: scale(1.05);
+    /* Slightly scale the button */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    /* Add subtle shadow */
+}
+
+.btn-outline-dark:hover {
+    transform: scale(1.05);
+    /* Slightly scale the button */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    /* Add subtle shadow */
 }

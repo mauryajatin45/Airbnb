@@ -1,30 +1,61 @@
 <% layout('layouts/boilerplate') %>
 
 <body>
-  <div class="container my-4">
-    <h3 class="text-center mb-3"><%= particularBnb.title %></h3>
-    
-    <!-- Description -->
-    <p><%= particularBnb.description %></p>
-    
-    <!-- Image -->
-    <img src="<%= particularBnb.url %>" alt="image" class="img-fluid rounded" width="250px" />
-    
-    <!-- Price -->
-    <p class="mt-2"><strong>Price:</strong> ₹<%= particularBnb.price %> per night</p>
-    
-    <!-- Location & Country -->
-    <p><strong>Location:</strong> <%= particularBnb.location %></p>
-    <p><strong>Country:</strong> <%= particularBnb.country %></p>
-    
-    <!-- Edit Button -->
-    <div class="mb-3">
-      <a href="http://localhost:3000/listings/<%= particularBnb.id %>/edit" class="btn btn-warning">Edit Place</a>
+  <!-- Main container for the BnB details -->
+  <div class="container my-3">
+
+    <!-- BnB Card -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <!-- Title -->
+        <h3 class="text-center mb-2"><%= particularBnb.title %></h3>
+
+        <!-- Image -->
+        <div class="text-center mb-3">
+          <img src="<%= particularBnb.url %>" alt="<%= particularBnb.title %>" class="img-fluid rounded" width="500px" />
+        </div>
+
+        <!-- Description -->
+        <p class="card-text"><%= particularBnb.description %></p>
+
+        <!-- Price -->
+        <p class="fw-bold">Price: ₹<%= particularBnb.price %> per night</p>
+
+        <!-- Location & Country -->
+        <p><strong>Location:</strong> <%= particularBnb.location %></p>
+        <p><strong>Country:</strong> <%= particularBnb.country %></p>
+
+        <!-- Edit Button -->
+        <div class="d-flex justify-content-start mb-3">
+          <a href="http://localhost:3000/listings/<%= particularBnb.id %>/edit" class="btn btn-warning me-2 btn-hover">Edit Place</a>
+          <form action="/listings/<%= particularBnb.id %>?_method=DELETE" method="POST" class="d-inline">
+            <button type="submit" class="btn btn-danger btn-hover">Delete</button>
+          </form>
+        </div>
+      </div>
     </div>
-    
-    <!-- Delete Form -->
-    <form action="/listings/<%= particularBnb.id %>?_method=DELETE" method="POST">
-      <button type="submit" class="btn btn-danger">Delete</button>
-    </form>
+<hr>
+    <!-- Reviews Section -->
+    <div class="mt-5">
+      <h4 class="text-center mb-4">Leave a Review</h4>
+
+      <!-- Review Form -->
+      <form>
+        <div class="mb-3">
+          <label for="rating" class="form-label">Rating</label>
+          <input type="range" name="rating" id="rating" class="form-range custom-range" min="1" max="5" step="1">
+        </div>
+        
+
+        <div class="mb-3">
+          <label for="comment" class="form-label">Comment</label>
+          <textarea name="comment" id="comment" class="form-control" rows="4"></textarea>
+        </div>
+
+        <div class="d-flex justify-content-center">
+          <button type="submit" class="btn btn-outline-dark btn-hover">Submit Review</button>
+        </div>
+      </form>
+    </div>
   </div>
 </body>
