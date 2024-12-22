@@ -1,3 +1,12 @@
+// ExpressError class definition
+class ExpressError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+  }
+}
+
+// Import necessary packages
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -5,15 +14,29 @@ const listing = require("../Airbnb/Models/listing"); // Use 'listing' as importe
 const methodOverride = require("method-override");
 const path = require("path");
 const ejsMate = require("ejs-mate");
+const review = require("../Airbnb/Models/review");
+const { reviewSchema } = require("../Airbnb/schema");
+var wrapAsync = require("./utils/wrapAsync");
 
 const port = 3000;
 
 app.set("view engine", "ejs");
-app.set('views', path.join(__dirname, 'views'));
+app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static("public"));
 app.engine("ejs", ejsMate);
+
+const validateReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body); // Validate directly from the body
+  if (error) {
+    const msg = error.details.map((el) => el.message).join(", ");
+    console.error("Validation Error:", msg);  // Log the error to the console for debugging
+    throw new ExpressError(msg, 400);  // Send validation error response
+  } else {
+    next();
+  }
+};
 
 // Database connection
 async function main() {
@@ -37,7 +60,6 @@ app.get("/listings", async (req, res) => {
   try {
     const listings = await listing.find({});
     res.render("listings/listings.ejs", { listings });
-    console.log("Request received on listing page");
   } catch (err) {
     console.error("Error fetching listings:", err);
     res.status(500).send("Error fetching listings");
@@ -64,7 +86,6 @@ app.post("/listings/new", async (req, res) => {
   try {
     await newListing.save();
     res.redirect("/listings");
-    console.log("New listing created");
   } catch (err) {
     console.error("Error saving new listing:", err);
     res.status(500).send("Error creating new listing");
@@ -79,7 +100,6 @@ app.get("/listings/:id/edit", async (req, res) => {
     if (!listingToEdit) {
       return res.status(404).send("Listing not found");
     }
-    console.log(listingToEdit);
     res.render("listings/edit.ejs", { particularBnb: listingToEdit });
   } catch (err) {
     console.error("Error fetching listing for edit:", err);
@@ -90,10 +110,6 @@ app.get("/listings/:id/edit", async (req, res) => {
 // Update a listing
 app.put("/listings/:id", async (req, res) => {
   const { id } = req.params;
-
-  // Log the incoming body to check what data is being sent
-  console.log("req.body", req.body);
-
   try {
     // Use 'listing' (the imported model) to update the listing
     const updatedListing = await listing.findByIdAndUpdate(id, req.body, {
@@ -113,14 +129,17 @@ app.put("/listings/:id", async (req, res) => {
   }
 });
 
-// Show a particular listing
 app.get("/listings/:id/", async (req, res) => {
   let { id } = req.params;
   try {
-    const listingToShow = await listing.findById(id); // This expects an ObjectId
+    // Find the listing and populate its reviews
+    const listingToShow = await listing.findById(id).populate('reviews');
+    
     if (!listingToShow) {
       return res.status(404).send("Listing not found");
     }
+
+    // Render the listing with populated reviews
     res.render("listings/showparticular.ejs", {
       particularBnb: listingToShow,
     });
@@ -134,13 +153,56 @@ app.get("/listings/:id/", async (req, res) => {
 app.delete("/listings/:id", async (req, res) => {
   let { id } = req.params;
   let deletedListing = await listing.findByIdAndDelete(id);
-  console.log(deletedListing);
   res.redirect("/listings");
 });
 
-app.use((err, req, res, next)=>{
-  res.send("Something went Wrong!!!")
-})
+// POST Review Route
+app.post(
+  "/listings/:id/reviews",
+  validateReview,
+  wrapAsync(async (req, res) => {
+    try {
+      let { id } = req.params;
+      let { rating, comment } = req.body;
+
+      // Ensure both rating and comment are provided
+      if (!rating || !comment) {
+        return res.status(400).send('Rating and Comment are required');
+      }
+
+      // Create the new review instance
+      let newReview = new review({ rating, comment });
+
+      // Save the new review to the Review collection
+      await newReview.save();  // Save the review to the database
+
+      // Find the listing by ID
+      let listingToUpdate = await listing.findById(id);
+
+      if (!listingToUpdate) {
+        return res.status(404).send('Listing not found');
+      }
+
+      // Push the new review's ObjectId to the reviews array of the listing
+      listingToUpdate.reviews.push(newReview._id); // Use the _id of the saved review
+
+      // Save the updated listing with the new review reference
+      await listingToUpdate.save();
+
+      // Redirect back to the listing page
+      res.redirect(`/listings/${id}`);
+    } catch (error) {
+      console.error('Error adding review:', error);
+      res.status(500).send('Something went wrong');
+    }
+  })
+);
+
+// Global error handler
+app.use((err, req, res, next) => {
+  const { message, statusCode = 500 } = err;
+  res.status(statusCode).send(message);
+});
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
