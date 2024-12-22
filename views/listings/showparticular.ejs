@@ -1,84 +1,131 @@
 <% layout('layouts/boilerplate') %>
 
-  <body>
-    <!-- Main container for the BnB details -->
-    <div class="container my-3">
-      <!-- BnB Card -->
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <!-- Title -->
-          <h3 class="text-center mb-2">
-            <%= particularBnb.title %>
-          </h3>
+<body>
+  <!-- Main container for the BnB details -->
+  <div class="container my-3">
+    <!-- BnB Card -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <!-- Title -->
+        <h3 class="text-center mb-2"><%= particularBnb.title %></h3>
 
-          <!-- Image -->
-          <div class="text-center mb-3">
-            <img src="<%= particularBnb.url %>" alt="<%= particularBnb.title %>" class="img-fluid rounded"
-              width="500px" />
-          </div>
+        <!-- Image -->
+        <div class="text-center mb-3">
+          <img
+            src="<%= particularBnb.url %>"
+            alt="<%= particularBnb.title %>"
+            class="img-fluid rounded"
+            width="500px"
+          />
+        </div>
 
-          <!-- Description -->
-          <p class="card-text">
-            <%= particularBnb.description %>
-          </p>
+        <!-- Description -->
+        <p class="card-text"><%= particularBnb.description %></p>
 
-          <!-- Price -->
-          <p class="fw-bold">Price: ₹<%= particularBnb.price %> per night</p>
+        <!-- Price -->
+        <p class="fw-bold">Price: ₹<%= particularBnb.price %> per night</p>
 
-          <!-- Location & Country -->
-          <p><strong>Location:</strong>
-            <%= particularBnb.location %>
-          </p>
-          <p><strong>Country:</strong>
-            <%= particularBnb.country %>
-          </p>
+        <!-- Location & Country -->
+        <p>
+          <strong>Location:</strong>
+          <%= particularBnb.location %>
+        </p>
+        <p>
+          <strong>Country:</strong>
+          <%= particularBnb.country %>
+        </p>
 
-          <!-- Edit Button -->
-          <div class="d-flex justify-content-start mb-3">
-            <a href="http://localhost:3000/listings/<%= particularBnb.id %>/edit"
-              class="btn btn-warning me-2 btn-hover">Edit Place</a>
-            <form action="/listings/<%= particularBnb.id %>?_method=DELETE" method="POST" class="d-inline">
-              <button type="submit" class="btn btn-danger btn-hover">
-                Delete
-              </button>
-            </form>
-          </div>
+        <!-- Edit Button -->
+        <div class="d-flex justify-content-start mb-3">
+          <a
+            href="http://localhost:3000/listings/<%= particularBnb.id %>/edit"
+            class="btn btn-warning me-2 btn-hover"
+            >Edit Place</a
+          >
+          <form
+            action="/listings/<%= particularBnb.id %>?_method=DELETE"
+            method="POST"
+            class="d-inline"
+          >
+            <button type="submit" class="btn btn-danger btn-hover">
+              Delete
+            </button>
+          </form>
         </div>
       </div>
-      <hr />
-      <!-- Reviews Section -->
-      <div class="mt-5">
-        <h4 class="text-center mb-4">Leave a Review</h4>
+    </div>
+    <hr />
+    <!-- Reviews Section -->
+    <div class="mt-5">
+      <h4 class="text-center mb-4">Leave a Review</h4>
 
-        <!-- Review Form -->
-        <form method="post" action="/listings/<%= particularBnb.id %>/reviews" class="needs-validation" novalidate>
-          <div class="mb-3">
-            <label for="rating" class="form-label">Rating</label>
-            <input type="range" name="rating" id="rating" class="form-range custom-range" min="1" max="5" step="1" required />
-          </div>
-        
-          <div class="mb-3">
-            <label for="comment" class="form-label">Comment</label>
-            <textarea name="comment" id="comment" class="form-control" rows="4" required></textarea>
-            <div class="invalid-feedback">Provide your valuable feedback</div>
-          </div>
-        
-          <div class="d-flex justify-content-center">
-            <button type="submit" class="btn btn-outline-dark btn-hover">Submit Review</button>
-          </div>
-        </form>        
-      </div>
-      <hr>
-      <div>
-        <h4 class="text-center mb-4">Reviews</h4>
+      <!-- Review Form -->
+      <form
+        method="post"
+        action="/listings/<%= particularBnb.id %>/reviews"
+        class="needs-validation"
+        novalidate
+      >
+        <div class="mb-3">
+          <label for="rating" class="form-label">Rating</label>
+          <input
+            type="range"
+            name="rating"
+            id="rating"
+            class="form-range custom-range"
+            min="1"
+            max="5"
+            step="1"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="comment" class="form-label">Comment</label>
+          <textarea
+            name="comment"
+            id="comment"
+            class="form-control"
+            rows="4"
+            required
+          ></textarea>
+          <div class="invalid-feedback">Provide your valuable feedback</div>
+        </div>
+
+        <div class="d-flex justify-content-center">
+          <button type="submit" class="btn btn-outline-dark btn-hover">
+            Submit Review
+          </button>
+        </div>
+      </form>
+    </div>
+    <hr />
+    <div class="reviews-section">
+      <h4 class="text-center mb-4">Reviews</h4>
+      <div class="row">
         <% for (let review of particularBnb.reviews) { %>
-          <div class="card mb-3">
+        <div class="col-12 col-md-6 col-lg-4 mb-3">
+          <div class="card review-card shadow-sm border-0">
             <div class="card-body">
-              <p class="card-text"><strong>Rating:</strong> <%= review.rating %></p>
-              <p class="card-text"><strong>Comment:</strong> <%= review.comment %></p>
+              <div class="d-flex align-items-center mb-3">
+                <img src="https://avatar.iran.liara.run/public/15" alt="Reviewer's Avatar" class="review-img rounded-circle">
+                <div class="ms-3">
+                  <h5 class="card-title mb-0"><b>Jatin Maurya</b></h5>
+                  <p class="text-muted mb-0">Reviewer</p>
+                </div>
+              </div>
+              <div class="rating">
+                <p class="card-text mb-1"><strong>Rating:</strong> <%= review.rating %> <span class="text-warning">★</span></p>
+              </div>
+              <div class="comment">
+                <p class="card-text"><strong>Comment:</strong> <%= review.comment %></p>
+              </div>
             </div>
           </div>
+        </div>
         <% } %>
-      </div>      
+      </div>
     </div>
-  </body>
+    
+  </div>
+</body>
