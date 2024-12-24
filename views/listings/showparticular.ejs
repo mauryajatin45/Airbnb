@@ -104,7 +104,7 @@
       <h4 class="text-center mb-4">Reviews</h4>
       <div class="row">
         <% for (let review of particularBnb.reviews) { %>
-        <div class="col-12 col-md-6 col-lg-4 mb-3">
+        <div class="col-12 col-md-6 col-lg-4 mb-4">
           <div class="card review-card shadow-sm border-0">
             <div class="card-body">
               <div class="d-flex align-items-center mb-3">
@@ -117,15 +117,20 @@
               <div class="rating">
                 <p class="card-text mb-1"><strong>Rating:</strong> <%= review.rating %> <span class="text-warning">★</span></p>
               </div>
-              <div class="comment">
+              <div class="comment mb-3">
                 <p class="card-text"><strong>Comment:</strong> <%= review.comment %></p>
               </div>
+              <!-- Delete Review Button -->
+              <form action="/listings/<%= particularBnb.id %>/reviews/<%= review.id %>?_method=DELETE" method="POST">
+                <button type="submit" class="btn btn-danger btn-sm w-100">Delete Review</button>
+              </form>
             </div>
           </div>
         </div>
         <% } %>
       </div>
     </div>
+    
     
   </div>
 </body>

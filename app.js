@@ -198,6 +198,15 @@ app.post(
   })
 );
 
+// Deleting a review
+app.delete("/listings/:id/reviews/:reviewId", async (req, res) => {
+  let { id, reviewId } = req.params;
+   
+  let deletedReview = await review.findByIdAndDelete(reviewId);
+  console.log(deletedReview);
+  res.redirect(`/listings/${id}`);
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
   const { message, statusCode = 500 } = err;

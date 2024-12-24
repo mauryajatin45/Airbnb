@@ -208,6 +208,21 @@ footer {
     margin-bottom: 1rem !important;
   }
   
+  form button {
+    margin-top: 1rem; /* Space between comment and button */
+  }
+  
+  .form-control {
+    width: 100%;
+  }
+  
+  .btn-danger {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 10px;
+  }
+  
   @media (max-width: 768px) {
     .review-card {
       margin-bottom: 1.5rem;
