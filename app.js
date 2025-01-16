@@ -18,7 +18,7 @@ const review = require("../Airbnb/Models/review");
 const { reviewSchema } = require("../Airbnb/schema");
 var wrapAsync = require("./utils/wrapAsync");
 const session = require('express-session');
-const flash = require('connect-flash')
+const flash = require('connect-flash');
 
 const port = 3000;
 
@@ -26,10 +26,10 @@ const sessionpOptions = {
   secret: "mysupersecretcode",
   resave: false,
   saveUninitialized: true,
-  cookie:{
-    expires : Date.now() + 7 * 24 * 60 * 60 * 1000,
+  cookie: {
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly : true,
+    httpOnly: true,
   }
 };
 
@@ -38,20 +38,17 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static("public"));
-app.use(session(sessionpOptions))
-app.use(flash())
+app.use(session(sessionpOptions));
+app.use(flash());  // Initialize connect-flash
 app.engine("ejs", ejsMate);
 
-const validateReview = (req, res, next) => {
-  const { error } = reviewSchema.validate(req.body); // Validate directly from the body
-  if (error) {
-    const msg = error.details.map((el) => el.message).join(", ");
-    console.error("Validation Error:", msg); // Log the error to the console for debugging
-    throw new ExpressError(msg, 400); // Send validation error response
-  } else {
-    next();
-  }
-};
+// Middleware to pass flash messages to all views
+app.use((req, res, next) => {
+  // Make flash messages available globally in all views
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
 
 // Database connection
 async function main() {
@@ -74,21 +71,14 @@ app.get("/", (req, res) => {
 app.get("/listings", async (req, res) => {
   try {
     const listings = await listing.find({});
-    
-    // Get any flash messages
-    const successMessage = req.flash("success");
-
-    // Render the listings page and pass the listings and success message
     res.render("listings/listings.ejs", {
       listings,
-      success: successMessage,  // Pass the success message to the template
     });
   } catch (err) {
     console.error("Error fetching listings:", err);
     res.status(500).send("Error fetching listings");
   }
 });
-
 
 // Render new listing form
 app.get("/listings/new", (req, res) => {
@@ -110,7 +100,7 @@ app.post("/listings/new", async (req, res) => {
   try {
     await newListing.save();
     req.flash("success", "New listing created");
-    res.redirect("/listings");  // No need for the second argument
+    res.redirect("/listings");
   } catch (err) {
     console.error("Error saving new listing:", err);
     res.status(500).send("Error creating new listing");
@@ -136,18 +126,16 @@ app.get("/listings/:id/edit", async (req, res) => {
 app.put("/listings/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    // Use 'listing' (the imported model) to update the listing
     const updatedListing = await listing.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true,
     });
-    req.flash("success", "Existing Listing Updated")
+    req.flash("success", "Existing Listing Updated");
 
     if (!updatedListing) {
       return res.status(404).send("Listing not found");
     }
 
-    // Send a response or redirect after successful update
     res.redirect(`/listings`);
   } catch (err) {
     console.error(err);
@@ -158,14 +146,12 @@ app.put("/listings/:id", async (req, res) => {
 app.get("/listings/:id/", async (req, res) => {
   let { id } = req.params;
   try {
-    // Find the listing and populate its reviews
     const listingToShow = await listing.findById(id).populate("reviews");
 
     if (!listingToShow) {
       return res.status(404).send("Listing not found");
     }
 
-    // Render the listing with populated reviews
     res.render("listings/showparticular.ejs", {
       particularBnb: listingToShow,
     });
@@ -179,44 +165,35 @@ app.get("/listings/:id/", async (req, res) => {
 app.delete("/listings/:id", async (req, res) => {
   let { id } = req.params;
   let deletedListing = await listing.findByIdAndDelete(id);
-  req.flash("success", "Listing Deleted")
+  req.flash("success", "Listing Deleted");
   res.redirect("/listings");
 });
 
 // POST Review Route
 app.post(
   "/listings/:id/reviews",
-  validateReview,
   wrapAsync(async (req, res) => {
     try {
       let { id } = req.params;
       let { rating, comment } = req.body;
 
-      // Ensure both rating and comment are provided
       if (!rating || !comment) {
         return res.status(400).send("Rating and Comment are required");
       }
 
-      // Create the new review instance
       let newReview = new review({ rating, comment });
 
-      // Save the new review to the Review collection
-      await newReview.save(); // Save the review to the database
+      await newReview.save();
 
-      // Find the listing by ID
       let listingToUpdate = await listing.findById(id);
 
       if (!listingToUpdate) {
         return res.status(404).send("Listing not found");
       }
 
-      // Push the new review's ObjectId to the reviews array of the listing
-      listingToUpdate.reviews.push(newReview._id); // Use the _id of the saved review
-
-      // Save the updated listing with the new review reference
+      listingToUpdate.reviews.push(newReview._id);
       await listingToUpdate.save();
-      req.flash("success", "New Review Created")
-      // Redirect back to the listing page
+      req.flash("success", "New Review Created");
       res.redirect(`/listings/${id}`);
     } catch (error) {
       console.error("Error adding review:", error);
@@ -231,7 +208,7 @@ app.delete("/listings/:id/reviews/:reviewId", async (req, res) => {
 
   let deletedReview = await review.findByIdAndDelete(reviewId);
   console.log(deletedReview);
-  req.flash("success", "Review Deleted")  
+  req.flash("success", "Review Deleted");
   res.redirect(`/listings/${id}`);
 });
 
