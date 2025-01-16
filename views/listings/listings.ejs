@@ -1,25 +1,42 @@
 <% layout('layouts/boilerplate') %>
 
-  <body>
-    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
-      <% listings.forEach((listing)=> { %>
-        <a href="/listings/<%= listing.id %>" class="Listing-link">
-          <div class="card cols">
-            <img src="<%= listing.url %>" class="card-img-top" alt="Listing image" style="height: 20rem" />
-            <div class="card-img-overlay">
-            </div>
-            <div class="card-body">
-              <p class="card-text">
-                <strong class="card-desc">
-                  <%= listing.title %>
-                </strong>
-                <br />
-                <strong class="card-desc">₹ <%= listing.price.toLocaleString("en-IN") %></strong>
-                night
-              </p>
-            </div>
+<% if (success && success.length > 0) { %>
+  <div class="alert alert-success alert-dismissible fade show col-6 offset-3" role="alert" id="success-alert">
+    <%= success[0] %>  <!-- Display the first success message -->
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+<body>
+  <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
+    <% listings.forEach((listing) => { %>
+      <a href="/listings/<%= listing.id %>" class="Listing-link">
+        <div class="card cols">
+          <img src="<%= listing.url %>" class="card-img-top" alt="Listing image" style="height: 20rem" />
+          <div class="card-img-overlay"></div>
+          <div class="card-body">
+            <p class="card-text">
+              <strong class="card-desc"><%= listing.title %></strong>
+              <br />
+              <strong class="card-desc">₹ <%= listing.price.toLocaleString("en-IN") %></strong>
+              night
+            </p>
           </div>
-        </a>
-        <% }) %>
-    </div>
-  </body>
+        </div>
+      </a>
+    <% }) %>
+  </div>
+
+  <!-- JavaScript to automatically fade out the alert after 3 seconds -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      let alert = document.querySelector('#success-alert');
+      if (alert) {
+        setTimeout(() => {
+          alert.classList.remove('show');
+          alert.classList.add('fade');
+        }, 3000); // Fade out after 3 seconds
+      }
+    });
+  </script>
+</body>

@@ -1,3 +1,4 @@
+/* General Reset */
 * {
     font-family: "Asap", serif;
 }
@@ -108,7 +109,7 @@ footer {
 }
 
 .card-body {
-    padding: 0 !important;
+    padding: 1rem; /* Added some padding for better card spacing */
 }
 
 .Listing-link {
@@ -116,7 +117,6 @@ footer {
 }
 
 /* Card Effect */
-
 .card-img-overlay {
     opacity: 0;
 }
@@ -126,112 +126,99 @@ footer {
     background-color: white;
 }
 
-.f-info-socials a {
-    color: inherit; 
-}
-
+/* Styling for Button */
 .btn {
     background-color: #E61E4D !important;
     border: none !important;
+    padding: 10px 20px; /* Ensure buttons have consistent padding */
+    border-radius: 5px;
 }
 
-/* Add smooth transitions to button hover effects */
 .btn-hover {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     /* smooth transition for transform and shadow */
 }
 
-.btn-warning:hover {
-    transform: scale(1.05);
-    /* Slightly scale the button */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    /* Add subtle shadow */
-}
-
-.btn-danger:hover {
-    transform: scale(1.05);
-    /* Slightly scale the button */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    /* Add subtle shadow */
-}
-
+.btn-warning:hover,
+.btn-danger:hover,
 .btn-outline-dark:hover {
     transform: scale(1.05);
-    /* Slightly scale the button */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    /* Add subtle shadow */
 }
 
-.review-card{
+/* Adjustments for Buttons in the Listing Details */
+.d-flex .btn {
+    margin-bottom: 0.5rem; /* Reduced bottom margin to align better */
+}
+
+/* Review Card */
+.review-card {
     border: 1px solid #b39da2 !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.review-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Reviews Section */
 .reviews-section {
     background-color: #f9f9f9;
     padding: 40px 15px;
     border-radius: 8px;
-  }
-  
-  .review-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .review-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  }
-  
-  .review-img {
+}
+
+.review-img {
     width: 50px;
     height: 50px;
     object-fit: cover;
-  }
-  
-  .card-title {
+}
+
+.card-title {
     font-size: 1.1rem;
-  }
-  
-  .card-text {
+}
+
+.card-text {
     font-size: 1rem;
-  }
-  
-  .rating .text-warning {
+}
+
+.rating .text-warning {
     color: #ffbf00; /* Star color */
-  }
-  
-  .comment {
+}
+
+.comment {
     font-size: 0.95rem;
     color: #555;
-  }
-  
-  .mb-3 {
+}
+
+.mb-3 {
     margin-bottom: 1rem !important;
-  }
-  
-  form button {
+}
+
+form button {
     margin-top: 1rem; /* Space between comment and button */
-  }
-  
-  .form-control {
+}
+
+.form-control {
     width: 100%;
-  }
-  
-  .btn-danger {
+}
+
+.btn-danger {
     font-size: 0.9rem;
     text-transform: uppercase;
     font-weight: 600;
     padding: 10px;
-  }
-  
-  @media (max-width: 768px) {
+}
+
+@media (max-width: 768px) {
     .review-card {
-      margin-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
     }
-  }
-  
-  @media (max-width: 576px) {
+}
+
+@media (max-width: 576px) {
     .review-card {
-      margin-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
     }
-  }
-  
+}

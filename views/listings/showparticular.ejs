@@ -35,26 +35,28 @@
           <%= particularBnb.country %>
         </p>
 
-        <!-- Edit Button -->
-        <div class="d-flex justify-content-start mb-3">
+        <!-- Edit and Delete Buttons -->
+        <div class="d-flex justify-content-start align-items-center gap-3 mb-2">
           <a
             href="http://localhost:3000/listings/<%= particularBnb.id %>/edit"
-            class="btn btn-warning me-2 btn-hover"
-            >Edit Place</a
-          >
+            class="btn btn-warning btn-hover px-4 py-2 rounded-3"
+          >Edit Place</a>
+          
           <form
             action="/listings/<%= particularBnb.id %>?_method=DELETE"
             method="POST"
             class="d-inline"
           >
-            <button type="submit" class="btn btn-danger btn-hover">
+            <button type="submit" class="btn btn-danger btn-hover px-4 py-2 rounded-3">
               Delete
             </button>
           </form>
         </div>
       </div>
     </div>
+
     <hr />
+
     <!-- Reviews Section -->
     <div class="mt-5">
       <h4 class="text-center mb-4">Leave a Review</h4>
@@ -99,8 +101,11 @@
         </div>
       </form>
     </div>
+
     <hr />
-    <div class="reviews-section">
+
+    <!-- Display Reviews -->
+    <div class="reviews-section mt-5">
       <h4 class="text-center mb-4">Reviews</h4>
       <div class="row">
         <% for (let review of particularBnb.reviews) { %>
@@ -130,7 +135,5 @@
         <% } %>
       </div>
     </div>
-    
-    
   </div>
 </body>
