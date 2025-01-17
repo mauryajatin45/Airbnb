@@ -235,6 +235,13 @@ app.delete("/listings/:id/reviews/:reviewId", async (req, res) => {
   res.redirect(`/listings/${id}`);
 });
 
+
+// Signup functionality
+app.get('/signup', (req, res)=>{
+  res.render("./users/signup.ejs")
+})
+
+
 // Global error handler
 app.use((err, req, res, next) => {
   const { message, statusCode = 500 } = err;
