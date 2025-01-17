@@ -19,6 +19,9 @@ const { reviewSchema } = require("../Airbnb/schema");
 var wrapAsync = require("./utils/wrapAsync");
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport = require('passport')
+const LocalStrategy = require('passport-local')
+const User = require('./Models/user')
 
 const port = 3000;
 
@@ -42,6 +45,14 @@ app.use(session(sessionpOptions));
 app.use(flash());  // Initialize connect-flash
 app.engine("ejs", ejsMate);
 
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()))
+
+// below two statements are used to make login user in a particular session and to login after a session has been ended.
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 // Middleware to pass flash messages to all views
 app.use((req, res, next) => {
   // Make flash messages available globally in all views
@@ -49,6 +60,8 @@ app.use((req, res, next) => {
   res.locals.error = req.flash("error");
   next();
 });
+
+
 
 // Database connection
 async function main() {
@@ -66,6 +79,16 @@ main();
 app.get("/", (req, res) => {
   res.send("Working");
 });
+
+
+app.get('/demoUser', async (req, res)=>{
+  let trialUser = new User({
+    email: "donhuma@gmail.com",
+    username: "DhiruDon"
+  })
+  let registeredUser = await User.register(trialUser, "abcd1234")
+  res.send(registeredUser)
+})
 
 // List all listings
 app.get("/listings", async (req, res) => {
