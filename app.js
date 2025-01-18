@@ -16,12 +16,12 @@ const path = require("path");
 const ejsMate = require("ejs-mate");
 const review = require("../Airbnb/Models/review");
 const { reviewSchema } = require("../Airbnb/schema");
-var wrapAsync = require("./utils/wrapAsync");
-const session = require('express-session');
-const flash = require('connect-flash');
-const passport = require('passport')
-const LocalStrategy = require('passport-local')
-const User = require('./Models/user')
+const wrapAsync = require("./utils/wrapAsync");
+const session = require("express-session");
+const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./Models/user");
 
 const port = 3000;
 
@@ -33,21 +33,22 @@ const sessionpOptions = {
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-  }
+  },
 };
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
+app.use(express.json());
 app.use(express.static("public"));
 app.use(session(sessionpOptions));
-app.use(flash());  // Initialize connect-flash
+app.use(flash()); // Initialize connect-flash
 app.engine("ejs", ejsMate);
 
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()))
+passport.use(new LocalStrategy(User.authenticate()));
 
 // below two statements are used to make login user in a particular session and to login after a session has been ended.
 passport.serializeUser(User.serializeUser());
@@ -60,8 +61,6 @@ app.use((req, res, next) => {
   res.locals.error = req.flash("error");
   next();
 });
-
-
 
 // Database connection
 async function main() {
@@ -79,16 +78,6 @@ main();
 app.get("/", (req, res) => {
   res.send("Working");
 });
-
-
-app.get('/demoUser', async (req, res)=>{
-  let trialUser = new User({
-    email: "donhuma@gmail.com",
-    username: "DhiruDon"
-  })
-  let registeredUser = await User.register(trialUser, "abcd1234")
-  res.send(registeredUser)
-})
 
 // List all listings
 app.get("/listings", async (req, res) => {
@@ -166,6 +155,7 @@ app.put("/listings/:id", async (req, res) => {
   }
 });
 
+// Show a specific listing
 app.get("/listings/:id/", async (req, res) => {
   let { id } = req.params;
   try {
@@ -184,7 +174,7 @@ app.get("/listings/:id/", async (req, res) => {
   }
 });
 
-// Delete Route
+// Delete a listing
 app.delete("/listings/:id", async (req, res) => {
   let { id } = req.params;
   let deletedListing = await listing.findByIdAndDelete(id);
@@ -235,12 +225,49 @@ app.delete("/listings/:id/reviews/:reviewId", async (req, res) => {
   res.redirect(`/listings/${id}`);
 });
 
-
 // Signup functionality
-app.get('/signup', (req, res)=>{
-  res.render("./users/signup.ejs")
-})
+app.get("/signup", (req, res) => {
+  res.render("./users/signup.ejs");
+});
 
+app.post("/signup", async (req, res) => {
+  let { email, username, password } = req.body;
+
+  // Ensure all required fields are provided
+  if (!email || !username || !password) {
+    req.flash("error", "All fields are required.");
+    return res.redirect("/signup");
+  }
+
+  let newUser = new User({ email, username });
+  try {
+    let registeredUser = await User.register(newUser, password);
+    passport.authenticate("local")(req, res, () => {
+      req.flash("success", "Welcome to Airbnb");
+      res.redirect("/listings");
+    });
+  } catch (err) {
+    console.log("Error during registration: ", err);
+    req.flash("error", "Something went wrong during registration.");
+    res.redirect("/signup");
+  }
+});
+
+app.get("/login", (req, res) => {
+  res.render("./users/login.ejs");
+});
+
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    failureFlash: true,
+    failureRedirect: "/login",
+  }),
+  async (req, res) => {
+    req.flash("success", "Welcome back!");
+    res.redirect("/listings");
+  }
+);
 
 // Global error handler
 app.use((err, req, res, next) => {
