@@ -22,6 +22,8 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./Models/user");
+const isLoggedIn = require("./middleware").isLoggedIn;
+const {saveURL} = require("./middleware").saveURL;
 
 const port = 3000;
 
@@ -59,6 +61,7 @@ app.use((req, res, next) => {
   // Make flash messages available globally in all views
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
+  res.locals.currentUser = req.user;
   next();
 });
 
@@ -88,12 +91,13 @@ app.get("/listings", async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching listings:", err);
-    res.status(500).send("Error fetching listings");
+    req.flash("error", "Error fetching listings");
+    res.redirect("/listings");
   }
 });
 
 // Render new listing form
-app.get("/listings/new", (req, res) => {
+app.get("/listings/new", isLoggedIn,(req, res) => {
   res.render("listings/new.ejs");
 });
 
@@ -110,32 +114,37 @@ app.post("/listings/new", async (req, res) => {
   });
 
   try {
+    newListing.owner = req.user._id;
     await newListing.save();
+
     req.flash("success", "New listing created");
     res.redirect("/listings");
   } catch (err) {
     console.error("Error saving new listing:", err);
-    res.status(500).send("Error creating new listing");
+    req.flash("error", "Error creating new listing");
+    res.redirect("/listings");
   }
 });
 
 // Edit a specific listing
-app.get("/listings/:id/edit", async (req, res) => {
+app.get("/listings/:id/edit",isLoggedIn, async (req, res) => {
   let { id } = req.params;
   try {
     const listingToEdit = await listing.findById(id);
     if (!listingToEdit) {
-      return res.status(404).send("Listing not found");
+      req.flash("error", "Listing not found");
+      return res.redirect("/listings");
     }
     res.render("listings/edit.ejs", { particularBnb: listingToEdit });
   } catch (err) {
     console.error("Error fetching listing for edit:", err);
-    res.status(500).send("Error fetching listing for edit");
+    req.flash("error", "Error fetching listing for edit");
+    res.redirect("/listings");
   }
 });
 
 // Update a listing
-app.put("/listings/:id", async (req, res) => {
+app.put("/listings/:id",isLoggedIn, async (req, res) => {
   const { id } = req.params;
   try {
     const updatedListing = await listing.findByIdAndUpdate(id, req.body, {
@@ -145,13 +154,15 @@ app.put("/listings/:id", async (req, res) => {
     req.flash("success", "Existing Listing Updated");
 
     if (!updatedListing) {
-      return res.status(404).send("Listing not found");
+      req.flash("error", "Listing not found");
+      return res.redirect("/listings");
     }
 
     res.redirect(`/listings`);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error updating the listing");
+    req.flash("error", "Error updating the listing");
+    res.redirect("/listings");
   }
 });
 
@@ -159,10 +170,11 @@ app.put("/listings/:id", async (req, res) => {
 app.get("/listings/:id/", async (req, res) => {
   let { id } = req.params;
   try {
-    const listingToShow = await listing.findById(id).populate("reviews");
+    const listingToShow = await listing.findById(id).populate("reviews").populate("owner");
 
     if (!listingToShow) {
-      return res.status(404).send("Listing not found");
+      req.flash("error", "Listing not found");
+      return res.redirect("/listings");
     }
 
     res.render("listings/showparticular.ejs", {
@@ -170,38 +182,46 @@ app.get("/listings/:id/", async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching listing details:", err);
-    res.status(500).send("Error fetching listing details");
+    req.flash("error", "Error fetching listing details");
+    res.redirect("/listings");
   }
 });
 
 // Delete a listing
-app.delete("/listings/:id", async (req, res) => {
+app.delete("/listings/:id",isLoggedIn, async (req, res) => {
   let { id } = req.params;
-  let deletedListing = await listing.findByIdAndDelete(id);
-  req.flash("success", "Listing Deleted");
-  res.redirect("/listings");
+  try {
+    let deletedListing = await listing.findByIdAndDelete(id);
+    req.flash("success", "Listing Deleted");
+    res.redirect("/listings");
+  } catch (err) {
+    console.error("Error deleting listing:", err);
+    req.flash("error", "Error deleting listing");
+    res.redirect("/listings");
+  }
 });
 
 // POST Review Route
 app.post(
-  "/listings/:id/reviews",
+  "/listings/:id/reviews",isLoggedIn,
   wrapAsync(async (req, res) => {
     try {
       let { id } = req.params;
       let { rating, comment } = req.body;
 
       if (!rating || !comment) {
-        return res.status(400).send("Rating and Comment are required");
+        req.flash("error", "Rating and Comment are required");
+        return res.redirect(`/listings/${id}`);
       }
 
       let newReview = new review({ rating, comment });
-
       await newReview.save();
 
       let listingToUpdate = await listing.findById(id);
 
       if (!listingToUpdate) {
-        return res.status(404).send("Listing not found");
+        req.flash("error", "Listing not found");
+        return res.redirect(`/listings/${id}`);
       }
 
       listingToUpdate.reviews.push(newReview._id);
@@ -210,7 +230,8 @@ app.post(
       res.redirect(`/listings/${id}`);
     } catch (error) {
       console.error("Error adding review:", error);
-      res.status(500).send("Something went wrong");
+      req.flash("error", "Something went wrong");
+      res.redirect(`/listings/${id}`);
     }
   })
 );
@@ -219,10 +240,16 @@ app.post(
 app.delete("/listings/:id/reviews/:reviewId", async (req, res) => {
   let { id, reviewId } = req.params;
 
-  let deletedReview = await review.findByIdAndDelete(reviewId);
-  console.log(deletedReview);
-  req.flash("success", "Review Deleted");
-  res.redirect(`/listings/${id}`);
+  try {
+    let deletedReview = await review.findByIdAndDelete(reviewId);
+    console.log(deletedReview);
+    req.flash("success", "Review Deleted");
+    res.redirect(`/listings/${id}`);
+  } catch (err) {
+    console.error("Error deleting review:", err);
+    req.flash("error", "Error deleting review");
+    res.redirect(`/listings/${id}`);
+  }
 });
 
 // Signup functionality
@@ -241,11 +268,32 @@ app.post("/signup", async (req, res) => {
 
   let newUser = new User({ email, username });
   try {
+    // Register the new user
     let registeredUser = await User.register(newUser, password);
-    passport.authenticate("local")(req, res, () => {
-      req.flash("success", "Welcome to Airbnb");
-      res.redirect("/listings");
-    });
+    
+    // Authenticate the user using passport
+    passport.authenticate("local", (err, user, info) => {
+      if (err) {
+        console.log("Authentication error: ", err);
+        req.flash("error", "Something went wrong during authentication.");
+        return res.redirect("/signup");
+      }
+      if (!user) {
+        req.flash("error", info.message || "Login failed.");
+        return res.redirect("/signup");
+      }
+
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          console.log("Error during login: ", loginErr);
+          req.flash("error", "Something went wrong during login.");
+          return res.redirect("/signup");
+        }
+        
+        req.flash("success", "Welcome to Airbnb!");
+        res.redirect("/listings");
+      });
+    })(req, res);
   } catch (err) {
     console.log("Error during registration: ", err);
     req.flash("error", "Something went wrong during registration.");
@@ -265,14 +313,30 @@ app.post(
   }),
   async (req, res) => {
     req.flash("success", "Welcome back!");
-    res.redirect("/listings");
+    const redirectTo = req.session.returnTo || "/listings";
+    delete req.session.returnTo; // Clear the returnTo session after using it
+    res.redirect(redirectTo);
+
   }
 );
+
+// Logout Route
+app.get("/logout", (req, res) => {
+  req.logout((err)=>{
+    if(err){
+      console.log("Error during logout: ", err);
+      req.flash("error", "Something went wrong during logout.");
+      return res.redirect("/listings");
+  }});
+  req.flash("success", "Goodbye!");
+  res.redirect("/listings");
+}); 
 
 // Global error handler
 app.use((err, req, res, next) => {
   const { message, statusCode = 500 } = err;
-  res.status(statusCode).send(message);
+  req.flash("error", message || "Something went wrong.");
+  res.status(statusCode).redirect("/listings");
 });
 
 app.listen(port, () => {

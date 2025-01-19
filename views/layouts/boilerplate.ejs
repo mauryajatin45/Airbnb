@@ -32,28 +32,37 @@
   <!-- Navbar -->
   <%- include('../includes/navbar.ejs') %>
 
-  <!-- Success Alert -->
-  <div class="container">
-    <% if (success && success.length > 0) { %>
-      <div class="alert alert-success alert-dismissible fade show col-6 offset-3" role="alert" id="success-alert">
-        <%= success[0] %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    <% } %>
-    <!-- Main Content -->
-    <%- body %>
-  </div>
+    <!-- Success Alert -->
+    <div class="container">
+      <!-- Success Message -->
+      <% if (success && success.length> 0) { %>
+        <div class="alert alert-success alert-dismissible fade show col-6 offset-3" role="alert" id="success-alert">
+          <%= success[0] %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <% } %>
 
-  <!-- Footer -->
-  <%- include('../includes/footer.ejs') %>
+          <!-- Error Message (similar logic for error messages) -->
+          <% if (error && error.length> 0) { %>
+            <div class="alert alert-danger alert-dismissible fade show col-6 offset-3" role="alert" id="error-alert">
+              <%= error[0] %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <% } %>
+              <!-- Main Content -->
+              <%- body %>
+    </div>
 
-  <!-- Bootstrap JS and Popper.js (only include the necessary bundle) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-    crossorigin="anonymous"></script>
+    <!-- Footer -->
+    <%- include('../includes/footer.ejs') %>
 
-  <!-- Custom JS -->
-  <script src="/Js/script.js"></script>
+      <!-- Bootstrap JS and Popper.js (only include the necessary bundle) -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+      <!-- Custom JS -->
+      <script src="/Js/script.js"></script>
 </body>
 
 </html>
