@@ -168,6 +168,7 @@ app.put("/listings/:id",isLoggedIn, async (req, res) => {
 
 // Show a specific listing
 app.get("/listings/:id/", async (req, res) => {
+  const listings = req.user;
   let { id } = req.params;
   try {
     const listingToShow = await listing.findById(id).populate("reviews").populate("owner");
@@ -316,7 +317,6 @@ app.post(
     const redirectTo = req.session.returnTo || "/listings";
     delete req.session.returnTo; // Clear the returnTo session after using it
     res.redirect(redirectTo);
-
   }
 );
 

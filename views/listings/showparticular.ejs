@@ -41,17 +41,28 @@
             <%= particularBnb.country %>
           </p>
 
-          <!-- Edit and Delete Buttons -->
-          <div class="d-flex justify-content-start align-items-center gap-3 mb-2">
-            <a href="http://localhost:3000/listings/<%= particularBnb.id %>/edit"
-              class="btn btn-warning btn-hover px-4 py-2 rounded-3">Edit Place</a>
-
-            <form action="/listings/<%= particularBnb.id %>?_method=DELETE" method="POST" class="d-inline">
-              <button type="submit" class="btn btn-danger btn-hover px-4 py-2 rounded-3">
-                Delete
-              </button>
-            </form>
-          </div>
+          <% if (particularBnb && particularBnb.owner && particularBnb.owner._id && req.user && particularBnb.owner._id.equals(req.user._id)) { %>
+            <!-- Edit and Delete Buttons -->
+            <div class="d-flex justify-content-start align-items-center gap-3 mb-2">
+              <!-- Edit Button -->
+              <a href="http://localhost:3000/listings/<%= particularBnb.id %>/edit"
+                class="btn btn-warning btn-hover px-4 py-2 rounded-3">Edit Place</a>
+          
+              <!-- Delete Button with Confirmation -->
+              <form action="/listings/<%= particularBnb.id %>?_method=DELETE" method="POST" class="d-inline" onsubmit="return confirmDelete()">
+                <button type="submit" class="btn btn-danger btn-hover px-4 py-2 rounded-3">
+                  Delete
+                </button>
+              </form>
+            </div>
+          
+            <script>
+              function confirmDelete() {
+                return confirm("Are you sure you want to delete this listing?");
+              }
+            </script>
+          <% } %>
+          
         </div>
       </div>
 
