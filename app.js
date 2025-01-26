@@ -23,7 +23,7 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./Models/user");
 const isLoggedIn = require("./middleware").isLoggedIn;
-const {saveURL} = require("./middleware").saveURL;
+const { saveURL } = require("./middleware").saveURL;
 
 const port = 3000;
 
@@ -97,7 +97,7 @@ app.get("/listings", async (req, res) => {
 });
 
 // Render new listing form
-app.get("/listings/new", isLoggedIn,(req, res) => {
+app.get("/listings/new", isLoggedIn, (req, res) => {
   res.render("listings/new.ejs");
 });
 
@@ -113,10 +113,9 @@ app.post("/listings/new", async (req, res) => {
     country,
   });
 
+  newListing.owner = req.user._id;
   try {
-    newListing.owner = req.user._id;
     await newListing.save();
-
     req.flash("success", "New listing created");
     res.redirect("/listings");
   } catch (err) {
@@ -127,7 +126,7 @@ app.post("/listings/new", async (req, res) => {
 });
 
 // Edit a specific listing
-app.get("/listings/:id/edit",isLoggedIn, async (req, res) => {
+app.get("/listings/:id/edit", isLoggedIn, async (req, res) => {
   let { id } = req.params;
   try {
     const listingToEdit = await listing.findById(id);
@@ -144,7 +143,7 @@ app.get("/listings/:id/edit",isLoggedIn, async (req, res) => {
 });
 
 // Update a listing
-app.put("/listings/:id",isLoggedIn, async (req, res) => {
+app.put("/listings/:id", isLoggedIn, async (req, res) => {
   const { id } = req.params;
   try {
     const updatedListing = await listing.findByIdAndUpdate(id, req.body, {
@@ -167,19 +166,29 @@ app.put("/listings/:id",isLoggedIn, async (req, res) => {
 });
 
 // Show a specific listing
-app.get("/listings/:id/", async (req, res) => {
-  const listings = req.user;
-  let { id } = req.params;
+app.get("/listings/:id", async (req, res) => {
+  const { id } = req.params;
   try {
-    const listingToShow = await listing.findById(id).populate("reviews").populate("owner");
+    const listingToShow = await listing
+      .findById(id)
+      .populate({
+        path: "reviews",
+        populate: {
+          path: "author", // Make sure `author` is populated correctly
+        },
+      })
+      .populate("owner"); // Populate the owner of the listing
 
     if (!listingToShow) {
       req.flash("error", "Listing not found");
       return res.redirect("/listings");
     }
 
-    res.render("listings/showparticular.ejs", {
+    console.log(listingToShow.reviews);  // Debug: Check if reviews are populated correctly
+
+    res.render("listings/showparticular", {
       particularBnb: listingToShow,
+      currentUser: req.user, // Pass the logged-in user info to the template
     });
   } catch (err) {
     console.error("Error fetching listing details:", err);
@@ -188,8 +197,9 @@ app.get("/listings/:id/", async (req, res) => {
   }
 });
 
+
 // Delete a listing
-app.delete("/listings/:id",isLoggedIn, async (req, res) => {
+app.delete("/listings/:id", isLoggedIn, async (req, res) => {
   let { id } = req.params;
   try {
     let deletedListing = await listing.findByIdAndDelete(id);
@@ -204,7 +214,8 @@ app.delete("/listings/:id",isLoggedIn, async (req, res) => {
 
 // POST Review Route
 app.post(
-  "/listings/:id/reviews",isLoggedIn,
+  "/listings/:id/reviews",
+  isLoggedIn,
   wrapAsync(async (req, res) => {
     try {
       let { id } = req.params;
@@ -215,9 +226,17 @@ app.post(
         return res.redirect(`/listings/${id}`);
       }
 
-      let newReview = new review({ rating, comment });
+      // Create the new review and associate the logged-in user as the author
+      let newReview = new review({
+        rating,
+        comment,
+        author: req.user._id, // Set the logged-in user as the author
+      });
+
+      // Save the review to the database
       await newReview.save();
 
+      // Find the listing and add the review to it
       let listingToUpdate = await listing.findById(id);
 
       if (!listingToUpdate) {
@@ -227,6 +246,7 @@ app.post(
 
       listingToUpdate.reviews.push(newReview._id);
       await listingToUpdate.save();
+
       req.flash("success", "New Review Created");
       res.redirect(`/listings/${id}`);
     } catch (error) {
@@ -238,7 +258,7 @@ app.post(
 );
 
 // Deleting a review
-app.delete("/listings/:id/reviews/:reviewId", async (req, res) => {
+app.delete("/listings/:id/reviews/:reviewId", isLoggedIn, async (req, res) => {
   let { id, reviewId } = req.params;
 
   try {
@@ -271,7 +291,7 @@ app.post("/signup", async (req, res) => {
   try {
     // Register the new user
     let registeredUser = await User.register(newUser, password);
-    
+
     // Authenticate the user using passport
     passport.authenticate("local", (err, user, info) => {
       if (err) {
@@ -290,7 +310,7 @@ app.post("/signup", async (req, res) => {
           req.flash("error", "Something went wrong during login.");
           return res.redirect("/signup");
         }
-        
+
         req.flash("success", "Welcome to Airbnb!");
         res.redirect("/listings");
       });
@@ -322,15 +342,16 @@ app.post(
 
 // Logout Route
 app.get("/logout", (req, res) => {
-  req.logout((err)=>{
-    if(err){
+  req.logout((err) => {
+    if (err) {
       console.log("Error during logout: ", err);
       req.flash("error", "Something went wrong during logout.");
       return res.redirect("/listings");
-  }});
+    }
+  });
   req.flash("success", "Goodbye!");
   res.redirect("/listings");
-}); 
+});
 
 // Global error handler
 app.use((err, req, res, next) => {
