@@ -6,6 +6,8 @@ class ExpressError extends Error {
   }
 }
 
+require("dotenv").config();
+
 // Import necessary packages
 const express = require("express");
 const app = express();
@@ -24,6 +26,9 @@ const LocalStrategy = require("passport-local");
 const User = require("./Models/user");
 const isLoggedIn = require("./middleware").isLoggedIn;
 const { saveURL } = require("./middleware").saveURL;
+const multer = require("multer");
+const { storage, cloudinary } = require("./cloudConfig");
+const upload = multer({ storage });
 
 const port = 3000;
 
@@ -102,28 +107,48 @@ app.get("/listings/new", isLoggedIn, (req, res) => {
 });
 
 // Create a new listing
-app.post("/listings/new", async (req, res) => {
-  const { title, description, url, price, location, country } = req.body;
-  const newListing = new listing({
-    title,
-    description,
-    url,
-    price,
-    location,
-    country,
-  });
+app.post(
+  "/listings/new",
+  isLoggedIn,
+  upload.single("url"),
+  async (req, res) => {
+    const { title, description, price, location, country } = req.body;
 
-  newListing.owner = req.user._id;
-  try {
-    await newListing.save();
-    req.flash("success", "New listing created");
-    res.redirect("/listings");
-  } catch (err) {
-    console.error("Error saving new listing:", err);
-    req.flash("error", "Error creating new listing");
-    res.redirect("/listings");
+    // Validate required fields
+    if (!title || !description || !price || !location || !country) {
+      req.flash("error", "Please fill out all required fields.");
+      return res.redirect("/listings/new"); // Redirect back to the new listing form
+    }
+
+    // If an image is uploaded, store the file path
+    let imageUrl = '';
+    if (req.file) {
+      imageUrl = req.file.path; // Assuming 'url' was meant to handle the file path
+    }
+
+    const newListing = new listing({
+      title,
+      description,
+      price,
+      location,
+      country,
+      url: imageUrl, // Save file path or image URL here
+    });
+
+    newListing.owner = req.user._id;
+
+    try {
+      await newListing.save();
+      req.flash("success", "New listing created");
+      res.redirect("/listings"); // Redirect to the listings page
+    } catch (err) {
+      console.error("Error saving new listing:", err);
+      req.flash("error", "Error creating new listing. Please try again.");
+      res.redirect("/listings/new"); // Redirect back to the form if there's an error
+    }
   }
-});
+);
+
 
 // Edit a specific listing
 app.get("/listings/:id/edit", isLoggedIn, async (req, res) => {
@@ -184,7 +209,7 @@ app.get("/listings/:id", async (req, res) => {
       return res.redirect("/listings");
     }
 
-    console.log(listingToShow.reviews);  // Debug: Check if reviews are populated correctly
+    console.log(listingToShow.reviews); // Debug: Check if reviews are populated correctly
 
     res.render("listings/showparticular", {
       particularBnb: listingToShow,
@@ -196,7 +221,6 @@ app.get("/listings/:id", async (req, res) => {
     res.redirect("/listings");
   }
 });
-
 
 // Delete a listing
 app.delete("/listings/:id", isLoggedIn, async (req, res) => {
