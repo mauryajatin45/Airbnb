@@ -153,13 +153,22 @@ app.post(
 // Edit a specific listing
 app.get("/listings/:id/edit", isLoggedIn, async (req, res) => {
   let { id } = req.params;
+
   try {
     const listingToEdit = await listing.findById(id);
     if (!listingToEdit) {
       req.flash("error", "Listing not found");
       return res.redirect("/listings");
     }
-    res.render("listings/edit.ejs", { particularBnb: listingToEdit });
+
+    // Now using the correct variable (listingToEdit) instead of the undefined listings
+    let originalurl = listingToEdit.url;
+    console.log(originalurl);
+    if (originalurl) {
+      originalurl = originalurl.replace("/upload", "/upload/h_300,w_250");
+    }
+
+    res.render("listings/edit.ejs", { particularBnb: listingToEdit, originalurl });
   } catch (err) {
     console.error("Error fetching listing for edit:", err);
     req.flash("error", "Error fetching listing for edit");
@@ -167,22 +176,35 @@ app.get("/listings/:id/edit", isLoggedIn, async (req, res) => {
   }
 });
 
+
 // Update a listing
-app.put("/listings/:id", isLoggedIn, async (req, res) => {
+app.put("/listings/:id", isLoggedIn, upload.single("url"), async (req, res) => {
   const { id } = req.params;
   try {
-    const updatedListing = await listing.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    req.flash("success", "Existing Listing Updated");
+    let updateData = { ...req.body };
 
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "airbnb-clone", // Folder where images will be stored
+        allowed_formats: ["jpeg", "png", "jpg"], // Allowed formats
+      });
+
+      updateData.url = result.secure_url; // Save the Cloudinary secure URL in the database
+    }
+
+    // Update the listing with the new data, including imageUrl if it's provided
+    const updatedListing = await listing.findByIdAndUpdate(
+      id,
+      updateData, // Update the document with req.body and imageUrl
+      { new: true, runValidators: true }
+    );
     if (!updatedListing) {
       req.flash("error", "Listing not found");
       return res.redirect("/listings");
     }
 
-    res.redirect(`/listings`);
+    req.flash("success", "Existing Listing Updated");
+    res.redirect("/listings");
   } catch (err) {
     console.error(err);
     req.flash("error", "Error updating the listing");
@@ -213,7 +235,7 @@ app.get("/listings/:id", async (req, res) => {
 
     res.render("listings/showparticular", {
       particularBnb: listingToShow,
-      currentUser: req.user, // Pass the logged-in user info to the template
+      currentUser: req.user,
     });
   } catch (err) {
     console.error("Error fetching listing details:", err);

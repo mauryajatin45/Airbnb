@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
       <div class="col-lg-8 col-md-10 col-sm-12">
         <h3 class="text-center mb-4">Edit Listing</h3>
-        <form action="/listings/<%= particularBnb.id %>?_method=PUT" method="POST" class="needs-validation" novalidate>
+        <form action="/listings/<%= particularBnb.id %>?_method=PUT" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
           
           <div class="mb-3">
             <label for="title" class="form-label">Title:</label>
@@ -22,8 +22,13 @@
           </div>
 
           <div class="mb-3">
-            <label for="url" class="form-label">Image URL:</label>
-            <input type="text" name="url" class="form-control" id="url" value="<%= particularBnb.url %>" required/>
+            Original Image <br>
+            <img src="<%= originalurl %>" alt="">
+          </div>
+
+          <div class="mb-3">
+            <label for="url" class="form-label">Upload Image</label>
+            <input type="file" name="url" class="form-control" id="url"/>
             <div class="valid-feedback">Looks good!</div>
             <div class="invalid-feedback">Invalid image URL</div>
           </div>
