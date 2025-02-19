@@ -1,4 +1,14 @@
 <% layout('layouts/boilerplate') %>
+<head>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
+</head>
+  <style>
+    #map {
+      height: 400px;
+      width: 100vh;
+    }
+  </style>
 
   <body>
     <!-- Main container for the BnB details -->
@@ -79,7 +89,8 @@
               <label for="rating" class="form-label">Rating</label>
               <fieldset class="starability-slot">
                 <!-- <legend>First rating:</legend> -->
-                <input type="radio" id="no-rate" class="input-no-rate" name="rating" value="1" checked aria-label="No rating." />
+                <input type="radio" id="no-rate" class="input-no-rate" name="rating" value="1" checked
+                  aria-label="No rating." />
                 <input type="radio" id="first-rate1" name="rating" value="1" />
                 <label for="first-rate1" title="Terrible">1 star</label>
                 <input type="radio" id="first-rate2" name="rating" value="2" />
@@ -104,58 +115,74 @@
                 Submit Review
               </button>
             </div>
-            
-            </div>
-          </form>
-        </div>
-        <% } %>
-          <hr />
 
-          <!-- Display Reviews -->
-          <div class="reviews-section mt-5">
-            <h4 class="text-center mb-4 text-dark font-weight-bold">Reviews</h4>
-            <div class="row">
-              <% for (let review of particularBnb.reviews) { %>
-                <div class="col-12 col-md-6 col-lg-4 mb-4">
-                  <div class="card review-card shadow-lg border-0 rounded-lg">
-                    <div class="card-body">
-                      <!-- Reviewer Info -->
-                      <div class="d-flex align-items-center mb-4">
-                        <!-- Reviewer's Avatar -->
-                        <img src="https://avatar.iran.liara.run/public" alt="Reviewer's Avatar"
-                          class="review-img rounded-circle border border-primary border-2" width="50px" height="50px" />
-                        <div class="ms-3">
-                          <h5 class="card-title mb-0 font-weight-bold text-dark">
-                            <%= review.author ? review.author.username : 'Anonymous' %>
-                          </h5>
-                          <p class="text-muted mb-0">Reviewer</p>
-                        </div>
-                      </div>
-          
-                      <!-- Rating -->
-                      <div class="rating mb-3">
-                        <div class="starability-result" data-rating="<%= review.rating %>"></div>
-                      </div>
-          
-                      <!-- Comment -->
-                      <div class="comment mb-4">
-                        <p class="card-text text-muted">
-                          <strong>Comment:</strong> <%= review.comment %>
-                        </p>
-                      </div>
-          
-                      <!-- Delete Review Button -->
-                      <% if (currentUser && review.author && currentUser._id.equals(review.author._id)) { %>
-                        <form action="/listings/<%= particularBnb._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
-                          <button type="submit" class="btn btn-danger btn-sm w-100 rounded-3 hover-shadow">Delete Review</button>
-                        </form>
-                      <% } %>
+        </div>
+        </form>
+    </div>
+    <% } %>
+      <hr />
+
+      <!-- Display Reviews -->
+      <div class="reviews-section mt-5">
+        <h4 class="text-center mb-4 text-dark font-weight-bold">Reviews</h4>
+        <div class="row">
+          <% for (let review of particularBnb.reviews) { %>
+            <div class="col-12 col-md-6 col-lg-4 mb-4">
+              <div class="card review-card shadow-lg border-0 rounded-lg">
+                <div class="card-body">
+                  <!-- Reviewer Info -->
+                  <div class="d-flex align-items-center mb-4">
+                    <!-- Reviewer's Avatar -->
+                    <img src="https://avatar.iran.liara.run/public" alt="Reviewer's Avatar"
+                      class="review-img rounded-circle border border-primary border-2" width="50px" height="50px" />
+                    <div class="ms-3">
+                      <h5 class="card-title mb-0 font-weight-bold text-dark">
+                        <%= review.author ? review.author.username : 'Anonymous' %>
+                      </h5>
+                      <p class="text-muted mb-0">Reviewer</p>
                     </div>
                   </div>
+
+                  <!-- Rating -->
+                  <div class="rating mb-3">
+                    <div class="starability-result" data-rating="<%= review.rating %>"></div>
+                  </div>
+
+                  <!-- Comment -->
+                  <div class="comment mb-4">
+                    <p class="card-text text-muted">
+                      <strong>Comment:</strong>
+                      <%= review.comment %>
+                    </p>
+                  </div>
+
+                  <!-- Delete Review Button -->
+                  <% if (currentUser && review.author && currentUser._id.equals(review.author._id)) { %>
+                    <form action="/listings/<%= particularBnb._id %>/reviews/<%= review._id %>?_method=DELETE"
+                      method="POST">
+                      <button type="submit" class="btn btn-danger btn-sm w-100 rounded-3 hover-shadow">Delete
+                        Review</button>
+                    </form>
+                    <% } %>
                 </div>
-              <% } %>
+              </div>
             </div>
-          </div>
-          
-    </div>
+            <% } %>
+        </div>
+      </div>
+      <hr>
+      <div class="col-8 offset-3 mb-3">
+        <h3>Where you'll be</h3>
+        <div id="map"></div>
+      </div>
+      </div>
   </body>
+
+  <script>
+    mapboxgl.accessToken = "pk.eyJ1IjoiMjMwNDAzMDEwMDgwOSIsImEiOiJjbTdiamRhZXUwNHlsMmxzN3N4NmtlN3FqIn0.-OcWfgC_qqNg9VlUoLSkOQ";
+    const map = new mapboxgl.Map({
+      container: 'map', // container ID
+      center: [-74.5, 40], // starting position [lng, lat]
+      zoom: 9 // starting zoom
+    });
+  </script>
